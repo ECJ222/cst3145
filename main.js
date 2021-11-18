@@ -3,6 +3,13 @@ import lessons from "./lessons.js"
 // Components
 const Home = {
   template: "#home",
+  data() {
+    return {
+      sortBy: "",
+      sortBy2: "",
+      reversed: false
+    }
+  },
   computed: {
     lessons() {
       return this.$store.state.lessons
@@ -11,6 +18,72 @@ const Home = {
   methods: {
     addToCart(item) {
       this.$store.commit("addToCart", item)
+    },
+    onSortChange(sortBy) {
+      let sortedLessons = []
+
+      switch (sortBy) {
+        case "ascending":
+          sortedLessons = this.reversed ? this.$store.state.lessons.reverse() : this.$store.state.lessons
+
+          if (this.reversed) this.reversed = false
+            
+          this.$store.commit("sortLessons", sortedLessons)
+
+          break
+        case "descending":
+          sortedLessons = this.$store.state.lessons.reverse()
+
+          this.reversed = true
+
+          this.$store.commit("sortLessons", sortedLessons)
+
+          break
+        case "subject":
+          sortedLessons = this.$store.state.lessons.sort((a, b) => {
+            if (a.subject.toUpperCase() < b.subject.toUpperCase()) {
+              return -1
+            }
+            if (a.subject.toUpperCase() > b.subject.toUpperCase()) {
+              return 1
+            }
+
+            return 0
+          })
+
+          this.$store.commit("sortLessons", sortedLessons)
+
+          break
+        case "location":
+          sortedLessons = this.$store.state.lessons.sort((a, b) => {
+            if (a.location.toUpperCase() < b.location.toUpperCase()) {
+              return -1
+            }
+            if (a.location.toUpperCase() > b.location.toUpperCase()) {
+              return 1
+            }
+
+            return 0
+          })
+
+          this.$store.commit("sortLessons", sortedLessons)
+
+          break
+        case "price":
+          sortedLessons = this.$store.state.lessons.sort((a, b) => a.price - b.price)
+
+          this.$store.commit("sortLessons", sortedLessons)
+
+          break
+        case "space":
+          sortedLessons = this.$store.state.lessons.sort((a, b) => a.space - b.space)
+
+          this.$store.commit("sortLessons", sortedLessons)
+
+          break
+        default:
+          break
+      }
     },
   },
 }
@@ -48,7 +121,7 @@ const Cart = {
       this.phone = 0
       this.resetCart()
       this.$toasted.success("Checkout successful.")
-      this.$router.push('/')
+      this.$router.push("/")
     },
   },
 }
@@ -85,6 +158,9 @@ const store = new Vuex.Store({
     },
     resetCart(state) {
       state.cart = []
+    },
+    sortLessons(state, sortedLessons) {
+      state.lessons = [...sortedLessons]
     },
   },
 })
